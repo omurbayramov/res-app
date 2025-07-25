@@ -1,14 +1,14 @@
 package com.example.reservation_application.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 @Entity
 public class Reservation {
 
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,15 +34,9 @@ public class Reservation {
         INACTIVE;
     }
 
-    private reservationStatus status;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Setter
+    @Getter
+    private ReservationStatus status;
 
     public int getTable_number() {
         return tableNumber;
@@ -84,11 +78,4 @@ public class Reservation {
         this.membersCount = membersCount;
     }
 
-    public reservationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(reservationStatus status) {
-        this.status = status;
-    }
 }

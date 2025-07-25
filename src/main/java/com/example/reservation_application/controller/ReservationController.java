@@ -1,48 +1,40 @@
 package com.example.reservation_application.controller;
 
+import com.example.reservation_application.dto.ReservationDto;
 import com.example.reservation_application.model.Reservation;
+import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.service.ReservationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.reservation_application.model.reservationStatus;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("api/reservations")
+@RequestMapping("api/v1/reservations")
 public class ReservationController {
 
     private final ReservationService reservationService;
 
-    @Autowired
-    public ReservationController(ReservationService reservationService) {
-        this.reservationService = reservationService;
-    }
-
     @GetMapping
-    public List<Reservation> getAllReservations() {
+    public List<ReservationDto> getAllReservations() {
         return reservationService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Optional<Reservation> getReservationById(@PathVariable Long id) {
+    public Optional<ReservationDto> getReservationById(@PathVariable Long id) {
         return reservationService.findById(id);
     }
 
     @GetMapping("/active")
-    public List<Reservation> getActiveReservation() {
-        return reservationService.findReservationByStatus(reservationStatus.ACTIVE);
+    public List<ReservationDto> getActiveReservationsByDate(@RequestParam("date") String date) {
+        return reservationService.findActiveReservationsByDate(date);
     }
 
     @PostMapping
-    public ResponseEntity<?> createReservation(@RequestBody Reservation reservation) {
-        try {
-            return ResponseEntity.ok(reservationService.createReservation(reservation));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ReservationDto> createReservation(@RequestBody Reservation reservation) {
+        return ResponseEntity.ok(reservationService.createReservation(reservation));
     }
 
     @PutMapping("/{id}")
@@ -51,13 +43,13 @@ public class ReservationController {
     }
 
     @PutMapping("/setActive/{id}")
-    public Optional<Reservation> setActiveStatus(@PathVariable Long id) {
-        return reservationService.setActiveStatus(id, reservationStatus.ACTIVE);
+    public Optional<ReservationDto> setActiveStatus(@PathVariable Long id) {
+        return reservationService.setActiveStatus(id, ReservationStatus.ACTIVE);
     }
 
     @PutMapping("/setInactive/{id}")
-    public Optional<Reservation> setInactiveStatus(@PathVariable Long id) {
-        return reservationService.setInactiveStatus(id, reservationStatus.INACTIVE);
+    public Optional<ReservationDto> setInactiveStatus(@PathVariable Long id) {
+        return reservationService.setInactiveStatus(id, ReservationStatus.INACTIVE);
     }
 
     @DeleteMapping("/{id}")

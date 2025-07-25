@@ -10,4 +10,4 @@ services:
     environment:
       - POSTGRES_USER=user2
       - POSTGRES_PASSWORD=root1234
-      - POSTGRES_DB=reservation_d
+      - POSTGRES_DB=reservation_db
