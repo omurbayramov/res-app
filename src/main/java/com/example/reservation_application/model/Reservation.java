@@ -28,11 +28,8 @@ public class Reservation {
     @NotBlank
     private int membersCount;
 
-    @NotBlank
-    private enum resStatus{
-        ACTIVE,
-        INACTIVE;
-    }
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus resStatus;
 
     @Setter
     @Getter

@@ -1,15 +1,18 @@
 package com.example.reservation_application.service;
 
-import com.example.reservation_application.dto.ReservationDto;
+import com.example.reservation_application.model.response.ReservationResponse;
 import com.example.reservation_application.model.Reservation;
 import com.example.reservation_application.model.ReservationStatus;
+import com.example.reservation_application.model.response.ReservationResponse;
 import com.example.reservation_application.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ReservationService {
 
@@ -20,19 +23,31 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
-    public List<ReservationDto> findAll() {
+    public List<ReservationResponse> findAll() {
+        log.info("Fetching all reservations");
         return reservationRepository.findAll()
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    public Optional<ReservationDto> findById(Long id) {
-        return reservationRepository.findById(id).map(this::mapToDto);
+    public Optional<ReservationResponse> findById(Long id) {
+        Optional<Reservation> reservationOpt = reservationRepository.findById(id);
+
+        if (reservationOpt.isEmpty()) {
+            log.warn("No reservation found with id: {}", id);
+            return Optional.empty();
+        }
+
+        return reservationOpt.map(this::mapToDto);
     }
 
-    public ReservationDto createReservation(Reservation reservation) {
+    public ReservationResponse createReservation(Reservation reservation) {
         if (!isTableAvailable(reservation)) {
+                log.warn("Reservation conflict: table {}, date={}, time: {}",
+                    reservation.getTable_number(),
+                    reservation.getReservation_date(),
+                    reservation.getReservation_time());
             throw new IllegalArgumentException("This table is already reserved at this time.");
         }
         Reservation saved = reservationRepository.save(reservation);
@@ -47,20 +62,23 @@ public class ReservationService {
             reservation.setReservation_time(updatedReservation.getReservation_time());
             reservation.setMembers_count(updatedReservation.getMembers_count());
             reservation.setStatus(updatedReservation.getStatus());
+            log.info("Reservation with the id: {} was updated successfully", id);
             return  reservationRepository.save(reservation);
         }).orElse(null);
     }
 
-    public Optional<ReservationDto> setActiveStatus(Long id, ReservationStatus reservationStatus) {
+    public Optional<ReservationResponse> setActiveStatus(Long id, ReservationStatus reservationStatus) {
         return reservationRepository.findById(id).map(reservation -> {
             reservation.setStatus(reservationStatus.ACTIVE);
+            log.info("Status of the reservation with id: {} was set to ACTIVE", id);
             return mapToDto(reservationRepository.save(reservation));
         });
     }
 
-    public Optional<ReservationDto> setInactiveStatus(Long id, ReservationStatus reservationStatus) {
+    public Optional<ReservationResponse> setInactiveStatus(Long id, ReservationStatus reservationStatus) {
         return reservationRepository.findById(id).map(reservation -> {
             reservation.setStatus(reservationStatus.INACTIVE);
+            log.info("Status of the reservation with id: {} was set to INACTIVE", id);
             return mapToDto(reservationRepository.save(reservation));
         });
     }
@@ -73,10 +91,11 @@ public class ReservationService {
     }
 
     public void deleteReservation(Long id) {
+        log.info("Reservation with the id: {} was deleted successfully", id);
         reservationRepository.deleteById(id);
     }
 
-    public List<ReservationDto> findActiveReservationsByDate(String date) {
+    public List<ReservationResponse> findActiveReservationsByDate(String date) {
         return reservationRepository
                 .findByStatusAndReservationDate(ReservationStatus.ACTIVE, date)
                 .stream()
@@ -84,8 +103,8 @@ public class ReservationService {
                 .collect(Collectors.toList());
     }
 
-    private ReservationDto mapToDto(Reservation reservation) {
-        ReservationDto dto = new ReservationDto();
+    private ReservationResponse mapToDto(Reservation reservation) {
+        ReservationResponse dto = new ReservationResponse();
         dto.setId(reservation.getId());
         dto.setCustomerName(reservation.getCustomer_name());
         dto.setReservationDate(reservation.getReservation_date());

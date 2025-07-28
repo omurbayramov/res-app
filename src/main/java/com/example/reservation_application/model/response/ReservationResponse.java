@@ -1,10 +1,13 @@
-package com.example.reservation_application.dto;
+package com.example.reservation_application.model.response;
 
 import com.example.reservation_application.model.ReservationStatus;
-import lombok.Data;
+import lombok.*;
+
 
 @Data
-public class ReservationDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ReservationResponse {
     private Long id;
     private String customerName;
     private int membersCount;

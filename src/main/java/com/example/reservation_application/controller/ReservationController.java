@@ -1,6 +1,6 @@
 package com.example.reservation_application.controller;
 
-import com.example.reservation_application.dto.ReservationDto;
+import com.example.reservation_application.model.response.ReservationResponse;
 import com.example.reservation_application.model.Reservation;
 import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.service.ReservationService;
@@ -18,22 +18,22 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping
-    public List<ReservationDto> getAllReservations() {
+    public List<ReservationResponse> getAllReservations() {
         return reservationService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Optional<ReservationDto> getReservationById(@PathVariable Long id) {
+    public Optional<ReservationResponse> getReservationById(@PathVariable Long id) {
         return reservationService.findById(id);
     }
 
     @GetMapping("/active")
-    public List<ReservationDto> getActiveReservationsByDate(@RequestParam("date") String date) {
+    public List<ReservationResponse> getActiveReservationsByDate(@RequestParam("date") String date) {
         return reservationService.findActiveReservationsByDate(date);
     }
 
     @PostMapping
-    public ResponseEntity<ReservationDto> createReservation(@RequestBody Reservation reservation) {
+    public ResponseEntity<ReservationResponse> createReservation(@RequestBody Reservation reservation) {
         return ResponseEntity.ok(reservationService.createReservation(reservation));
     }
 
@@ -43,12 +43,12 @@ public class ReservationController {
     }
 
     @PutMapping("/setActive/{id}")
-    public Optional<ReservationDto> setActiveStatus(@PathVariable Long id) {
+    public Optional<ReservationResponse> setActiveStatus(@PathVariable Long id) {
         return reservationService.setActiveStatus(id, ReservationStatus.ACTIVE);
     }
 
     @PutMapping("/setInactive/{id}")
-    public Optional<ReservationDto> setInactiveStatus(@PathVariable Long id) {
+    public Optional<ReservationResponse> setInactiveStatus(@PathVariable Long id) {
         return reservationService.setInactiveStatus(id, ReservationStatus.INACTIVE);
     }
 
