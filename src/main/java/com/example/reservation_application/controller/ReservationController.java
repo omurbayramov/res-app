@@ -1,7 +1,7 @@
 package com.example.reservation_application.controller;
 
 import com.example.reservation_application.model.response.ReservationResponse;
-import com.example.reservation_application.model.Reservation;
+import com.example.reservation_application.model.ReservationEntity;
 import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +17,6 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    @GetMapping
-    public List<ReservationResponse> getAllReservations() {
-        return reservationService.findAll();
-    }
-
     @GetMapping("/{id}")
     public Optional<ReservationResponse> getReservationById(@PathVariable Long id) {
         return reservationService.findById(id);
@@ -33,18 +28,8 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationResponse> createReservation(@RequestBody Reservation reservation) {
-        return ResponseEntity.ok(reservationService.createReservation(reservation));
-    }
-
-    @PutMapping("/{id}")
-    public Reservation updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
-        return reservationService.updateReservation(id, reservation);
-    }
-
-    @PutMapping("/setActive/{id}")
-    public Optional<ReservationResponse> setActiveStatus(@PathVariable Long id) {
-        return reservationService.setActiveStatus(id, ReservationStatus.ACTIVE);
+    public ResponseEntity<ReservationResponse> createReservation(@RequestBody ReservationEntity reservationEntity) {
+        return ResponseEntity.ok(reservationService.createReservation(reservationEntity));
     }
 
     @PutMapping("/setInactive/{id}")
@@ -52,8 +37,4 @@ public class ReservationController {
         return reservationService.setInactiveStatus(id, ReservationStatus.INACTIVE);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteReservation(@PathVariable Long id) {
-        reservationService.deleteReservation(id);
-    }
 }

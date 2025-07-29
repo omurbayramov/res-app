@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: Reservation_Application
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reservation_db
+    username: user2
+    password: root1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect

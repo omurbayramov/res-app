@@ -11,7 +11,7 @@ public class ReservationResponse {
     private Long id;
     private String customerName;
     private int membersCount;
-    private String reservationDate;
+    private String reservationDate;  // Local Date Time
     private String reservationTime;
     private ReservationStatus status;
     private int tableNumber;
