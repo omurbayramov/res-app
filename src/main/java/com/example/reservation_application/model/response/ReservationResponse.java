@@ -1,7 +1,9 @@
 package com.example.reservation_application.model.response;
 
 import com.example.reservation_application.model.ReservationStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
