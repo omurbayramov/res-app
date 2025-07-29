@@ -4,7 +4,7 @@ import com.example.reservation_application.model.ReservationEntity;
 import com.example.reservation_application.model.response.ReservationResponse;
 import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.repository.ReservationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,14 +13,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-
-    @Autowired
-    public ReservationService(ReservationRepository reservationRepository) {
-        this.reservationRepository = reservationRepository;
-    }
 
     public Optional<ReservationResponse> findById(Long id) {
         Optional<ReservationEntity> reservationOpt = reservationRepository.findById(id);
@@ -32,7 +28,7 @@ public class ReservationService {
 
         return reservationOpt.map(this::mapToDto);
     }
-//dont return Reservationentity. use update reservationEntity
+
     public ReservationResponse createReservation(ReservationEntity reservationEntity) {
         if (!isTableAvailable(reservationEntity)) {
                 log.warn("ReservationEntity conflict: table {}, date={}, time: {}",
@@ -45,13 +41,14 @@ public class ReservationService {
         return mapToDto(saved);
     }
 
-    public Optional<ReservationResponse> setInactiveStatus(Long id, ReservationStatus reservationStatus) {
+    public Optional<ReservationResponse> setInactiveStatus(Long id) {
         return reservationRepository.findById(id).map(reservationEntity -> {
             reservationEntity.setStatus(ReservationStatus.INACTIVE);
             log.info("Status of the reservationEntity with id: {} was set to INACTIVE", id);
             return mapToDto(reservationRepository.save(reservationEntity));
         });
     }
+
 
     public boolean isTableAvailable(ReservationEntity reservationEntity) {
         return !reservationRepository.existsByTableNumberAndReservationDateAndReservationTime(

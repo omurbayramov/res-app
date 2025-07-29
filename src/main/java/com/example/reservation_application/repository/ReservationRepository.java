@@ -15,4 +15,6 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
             String reservationDate,
             String reservationTime
     );
+
+    List<ReservationEntity> findByStatus(ReservationStatus reservationStatus);
 }

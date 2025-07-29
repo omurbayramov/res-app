@@ -2,7 +2,6 @@ package com.example.reservation_application.controller;
 
 import com.example.reservation_application.model.response.ReservationResponse;
 import com.example.reservation_application.model.ReservationEntity;
-import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +33,7 @@ public class ReservationController {
 
     @PutMapping("/setInactive/{id}")
     public Optional<ReservationResponse> setInactiveStatus(@PathVariable Long id) {
-        return reservationService.setInactiveStatus(id, ReservationStatus.INACTIVE);
+        return reservationService.setInactiveStatus(id);
     }
 
 }
