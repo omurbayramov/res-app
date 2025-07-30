@@ -1,5 +1,8 @@
 package com.example.reservation_application.service;
 
+import com.example.reservation_application.exception.AlreadyExistsException;
+import com.example.reservation_application.exception.NotFoundException;
+import com.example.reservation_application.exception.ErrorMessage;
 import com.example.reservation_application.model.ReservationEntity;
 import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.model.response.ReservationResponse;
@@ -24,25 +27,36 @@ public class ReservationService {
 
         if (reservationOpt.isEmpty()) {
             log.warn("No reservation found with id: {}", id);
-            return Optional.empty();
+            throw new NotFoundException(ErrorMessage.RESERVATION_NOT_FOUND.getCode());
         }
 
         return reservationOpt.map(this::mapToDto);
     }
 
     public ReservationResponse createReservation(ReservationEntity reservationEntity) {
+
+
         if (!isTableAvailable(reservationEntity)) {
-                log.warn("ReservationEntity conflict: table {}, date={}, time: {}",
+            log.warn("ReservationEntity conflict: table {}, date={}, time: {}",
                     reservationEntity.getTableNumber(),
                     reservationEntity.getReservationDate(),
                     reservationEntity.getReservationTime());
-            throw new IllegalArgumentException("This table is already reserved at this time.");
+
+            throw new AlreadyExistsException(ErrorMessage.TABLE_ALREADY_RESERVED.getCode());
         }
         ReservationEntity saved = reservationRepository.save(reservationEntity);
         return mapToDto(saved);
     }
 
     public Optional<ReservationResponse> setInactiveStatus(Long id) {
+
+        Optional<ReservationEntity> reservationOpt = reservationRepository.findById(id);
+
+        if (reservationOpt.isEmpty()) {
+            log.warn("Cannot set status. Reservation not found with id: {}", id);
+            throw new NotFoundException(ErrorMessage.RESERVATION_NOT_FOUND.getCode());
+        }
+
         return reservationRepository.findById(id).map(reservationEntity -> {
             reservationEntity.setStatus(ReservationStatus.INACTIVE);
             log.info("Status of the reservationEntity with id: {} was set to INACTIVE", id);
