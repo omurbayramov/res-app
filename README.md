@@ -9,7 +9,7 @@ GET http://localhost:8080/api/reservations/active?date={"date"}
 get all active reservations by their date
 
 POST http://localhost:8080/api/reservations
-post a reservationEntity to the list (error message if date, time, table number is the same)
+post a reservation to the list (error message if date, time, table number is the same)
 
 PUT http://localhost:8080/api/reservations/setInactive/{"id"}
-changes status of the reservationEntity to inactive
+changes status of the reservation to inactive
