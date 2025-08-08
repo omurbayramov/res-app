@@ -3,6 +3,7 @@ package com.example.reservation_application.service;
 import com.example.reservation_application.exception.AlreadyExistsException;
 import com.example.reservation_application.exception.NotFoundException;
 import com.example.reservation_application.exception.ErrorMessage;
+import com.example.reservation_application.model.request.ReservationRequest;
 import com.example.reservation_application.model.ReservationEntity;
 import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.model.response.ReservationResponse;
@@ -33,8 +34,15 @@ public class ReservationService {
         return reservationOpt.map(this::mapToDto);
     }
 
-    public ReservationResponse createReservation(ReservationEntity reservationEntity) {
-
+    public ReservationResponse createReservation(ReservationRequest request) {
+        ReservationEntity reservationEntity = ReservationEntity.builder()
+                .customerName(request.getCustomerName())
+                .reservationDate(request.getReservationDate())
+                .reservationTime(request.getReservationTime())
+                .membersCount(request.getMembersCount())
+                .tableNumber(request.getTableNumber())
+                .status(ReservationStatus.ACTIVE) // default
+                .build();
 
         if (!isTableAvailable(reservationEntity)) {
             log.warn("ReservationEntity conflict: table {}, date={}, time: {}",
@@ -44,6 +52,7 @@ public class ReservationService {
 
             throw new AlreadyExistsException(ErrorMessage.TABLE_ALREADY_RESERVED.getCode());
         }
+
         ReservationEntity saved = reservationRepository.save(reservationEntity);
         return mapToDto(saved);
     }

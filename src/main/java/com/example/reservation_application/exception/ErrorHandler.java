@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -66,5 +67,15 @@ public class ErrorHandler {
         log.error("ConstraintViolationException: ", ex);
         var message = LOCALIZATION_UTIL.getMessageByKey(VALIDATION_ERROR.getCode());
         return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handle(MethodArgumentNotValidException ex) {
+        log.error("MethodArgumentNotValidException: ", ex);
+        var message = LOCALIZATION_UTIL.getMessageByKey(VALIDATION_ERROR.getCode());
+        var fieldErrors = ex.getBindingResult().getFieldErrors();
+        var validationErrors = ERROR_UTIL.extractValidationErrors(fieldErrors);
+        return new ErrorResponse(message, validationErrors);
     }
 }
