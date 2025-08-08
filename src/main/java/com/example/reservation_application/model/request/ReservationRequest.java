@@ -1,5 +1,6 @@
 package com.example.reservation_application.model.request;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -20,5 +21,6 @@ public class ReservationRequest {
     private String reservationTime;
 
     @Min(value = 1, message = "validation.tableNumber.min")
+    @Max(value = 12, message = "validation.tableNumber.max")
     private Integer tableNumber;
 }
