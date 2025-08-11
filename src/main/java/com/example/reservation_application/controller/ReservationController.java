@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class ReservationController {
     }
 
     @GetMapping("/active")
-    public List<ReservationResponse> getActiveReservationsByDate(@RequestParam("date") String date) {
+    public List<ReservationResponse> getActiveReservationsByDate(@RequestParam("date") LocalDate date) {
         return reservationService.findActiveReservationsByDate(date);
     }
 

@@ -1,10 +1,15 @@
 package com.example.reservation_application.model.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 public class ReservationRequest {
@@ -16,11 +21,13 @@ public class ReservationRequest {
     @Size(min = 3, max = 30, message = "validation.customerName.size")
     private String customerName;
 
-    @NotBlank(message = "validation.reservationDate.blank")
-    private String reservationDate; //change to local date., sue value of. delete database entries.
+    @NotNull(message = "validation.reservationDate.required")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate reservationDate;
 
-    @NotBlank(message = "validation.reservationTime.blank")
-    private String reservationTime;
+    @NotNull(message = "validation.reservationTime.required")
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime reservationTime;
 
     @Min(value = 1, message = "validation.tableNumber.min")
     @Max(value = 12, message = "validation.tableNumber.max")

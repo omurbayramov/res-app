@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,7 +82,7 @@ public class ReservationService {
                 reservationEntity.getReservationTime());
     }
 
-    public List<ReservationResponse> findActiveReservationsByDate(String date) {
+    public List<ReservationResponse> findActiveReservationsByDate(LocalDate date) {
         return reservationRepository
                 .findByStatusAndReservationDate(ReservationStatus.ACTIVE, date)
                 .stream()
