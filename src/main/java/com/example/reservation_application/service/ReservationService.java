@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,13 +38,16 @@ public class ReservationService {
     }
 
     public ReservationResponse createReservation(ReservationRequest request) {
+        LocalDate date = LocalDate.parse(request.getReservationDate(), DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalTime time = LocalTime.parse(request.getReservationTime(), DateTimeFormatter.ofPattern("HH:mm"));
+
         ReservationEntity reservationEntity = ReservationEntity.builder()
                 .customerName(request.getCustomerName())
-                .reservationDate(request.getReservationDate())
-                .reservationTime(request.getReservationTime())
+                .reservationDate(date)
+                .reservationTime(time)
                 .membersCount(request.getMembersCount())
                 .tableNumber(request.getTableNumber())
-                .status(ReservationStatus.ACTIVE) // default
+                .status(ReservationStatus.ACTIVE)
                 .build();
 
         if (!isTableAvailable(reservationEntity)) {
