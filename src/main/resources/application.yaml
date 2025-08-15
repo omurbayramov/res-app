@@ -1,6 +1,9 @@
 spring:
   application:
     name: Reservation_Application
+  output:
+    ansi:
+      enabled: always
 
   datasource:
     url: jdbc:postgresql://localhost:5432/reservation_db

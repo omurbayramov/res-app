@@ -8,47 +8,35 @@ import com.example.reservation_application.model.ReservationEntity;
 import com.example.reservation_application.model.ReservationStatus;
 import com.example.reservation_application.model.response.ReservationResponse;
 import com.example.reservation_application.repository.ReservationRepository;
+import com.example.reservation_application.mapper.ReservationMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final ReservationMapper reservationMapper;
 
     public Optional<ReservationResponse> findById(Long id) {
-        Optional<ReservationEntity> reservationOpt = reservationRepository.findById(id);
-
-        if (reservationOpt.isEmpty()) {
-            log.warn("No reservation found with id: {}", id);
-            throw new NotFoundException(ErrorMessage.RESERVATION_NOT_FOUND.getCode());
-        }
-
-        return reservationOpt.map(this::mapToDto);
+        return reservationRepository.findById(id)
+                .map(reservationMapper::toDto)
+                .or(() -> {
+                    log.warn("No reservation found with id: {}", id);
+                    throw new NotFoundException(ErrorMessage.RESERVATION_NOT_FOUND.getCode());
+                });
     }
 
     public ReservationResponse createReservation(ReservationRequest request) {
-        LocalDate date = LocalDate.parse(request.getReservationDate(), DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalTime time = LocalTime.parse(request.getReservationTime(), DateTimeFormatter.ofPattern("HH:mm"));
-
-        ReservationEntity reservationEntity = ReservationEntity.builder()
-                .customerName(request.getCustomerName())
-                .reservationDate(date)
-                .reservationTime(time)
-                .membersCount(request.getMembersCount())
-                .tableNumber(request.getTableNumber())
-                .status(ReservationStatus.ACTIVE)
-                .build();
+        ReservationEntity reservationEntity = reservationMapper.toEntity(request);
 
         if (!isTableAvailable(reservationEntity)) {
             log.warn("ReservationEntity conflict: table {}, date={}, time: {}",
@@ -59,26 +47,21 @@ public class ReservationService {
             throw new AlreadyExistsException(ErrorMessage.TABLE_ALREADY_RESERVED.getCode());
         }
 
-        ReservationEntity saved = reservationRepository.save(reservationEntity);
-        return mapToDto(saved);
+        return reservationMapper.toDto(reservationRepository.save(reservationEntity));
     }
 
     public Optional<ReservationResponse> setInactiveStatus(Long id) {
-
-        Optional<ReservationEntity> reservationOpt = reservationRepository.findById(id);
-
-        if (reservationOpt.isEmpty()) {
-            log.warn("Cannot set status. Reservation not found with id: {}", id);
-            throw new NotFoundException(ErrorMessage.RESERVATION_NOT_FOUND.getCode());
-        }
-
-        return reservationRepository.findById(id).map(reservationEntity -> {
-            reservationEntity.setStatus(ReservationStatus.INACTIVE);
-            log.info("Status of the reservationEntity with id: {} was set to INACTIVE", id);
-            return mapToDto(reservationRepository.save(reservationEntity));
-        });
+        return reservationRepository.findById(id)
+                .map(reservationEntity -> {
+                    reservationEntity.setStatus(ReservationStatus.INACTIVE);
+                    log.info("Status of the reservationEntity with id: {} was set to INACTIVE", id);
+                    return reservationMapper.toDto(reservationRepository.save(reservationEntity));
+                })
+                .or(() -> {
+                    log.warn("Cannot set status. Reservation not found with id: {}", id);
+                    throw new NotFoundException(ErrorMessage.RESERVATION_NOT_FOUND.getCode());
+                });
     }
-
 
     public boolean isTableAvailable(ReservationEntity reservationEntity) {
         return !reservationRepository.existsByTableNumberAndReservationDateAndReservationTime(
@@ -91,20 +74,7 @@ public class ReservationService {
         return reservationRepository
                 .findByStatusAndReservationDate(ReservationStatus.ACTIVE, date)
                 .stream()
-                .map(this::mapToDto)
+                .map(reservationMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    private ReservationResponse mapToDto(ReservationEntity reservationEntity) {
-        ReservationResponse dto = new ReservationResponse();
-        dto.setId(reservationEntity.getId());
-        dto.setCustomerName(reservationEntity.getCustomerName());
-        dto.setReservationDate(reservationEntity.getReservationDate());
-        dto.setReservationTime(reservationEntity.getReservationTime());
-        dto.setMembersCount(reservationEntity.getMembersCount());
-        dto.setTableNumber(reservationEntity.getTableNumber());
-        dto.setStatus(reservationEntity.getStatus());
-        return dto;
-
     }
 }
